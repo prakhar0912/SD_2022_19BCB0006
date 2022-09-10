@@ -121,7 +121,11 @@ class Pieces():
         pass
     # Parsing the input
     def processInput(self, inpt):
-        [turn, character, move] = inpt.split("-")
+        try:
+            [turn, character, move] = inpt.split("-")
+        except:
+            print("Invalid input format please follow: <character>-<move>, Example: P5-B") #Error handling
+            return 0
         if character not in currentChrarcters[turn]:            # Checking whether the character is on the board or not
             print("Error: Invalid Character input")
             return 0
