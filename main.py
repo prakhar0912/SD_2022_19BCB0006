@@ -38,20 +38,43 @@ class Board():
                     print("  "+j, end = " ")
             print()
         pass
-    def movePiece(parsedInp):
+    def movePiece(self, parsedInp):
         [turn, character, move] = parsedInp
+        locI = 0
+        locJ = 0
         for i in range(len(globalBoard)):
-            for j in globalBoard[i]:
-                if turn + "-" + character == j:
-                    locI, locJ = i, j
-        print(locI, locJ)
-
-
+            for j, ele in enumerate(globalBoard[i]):
+                if turn + "-" + character == ele:
+                    locI = int(i)
+                    locJ = int(j)
+        newLocI = locI
+        newLocJ = locJ
+        if character[0] == "P":
+            if move == "L":
+                newLocJ -= 1
+            elif move == "R":
+                newLocJ += 1
+            elif move == "U":
+                newLocI -= 1
+            elif move == "D":
+                newLocI += 1
+            else:
+                print("Error: Wrong Move")
+                return 0
+        if (newLocI < 0 or newLocI > 4) or (newLocJ < 0 or newLocJ > 4):
+            print("Error: Cannot Move Here")
+            return 0
+        elif(globalBoard[newLocI][newLocJ].split("-")[0] == turn):
+            print("Error: Hitting own Player")
+            return 0
+        else:
+            globalBoard[locI][locJ] = "-"
+            globalBoard[newLocI][newLocJ] = turn + "-" + character
 
 class Pieces():
     def __init__(self) -> None:
         pass
-    def processInput(inpt):
+    def processInput(self, inpt):
         [turn, character, move] = inpt.split("-")
         if character not in currentChrarcters:
             print("Error: Invalid Character input")
@@ -65,18 +88,22 @@ turn = False
 board = Board()
 pieces = Pieces()
 while 1:
+    board.print_board()
+    finalMove = ""
     if turn == False:
         to = input("Where do you wanna move which piece player A: ")
-        finalMove = "A" + to
+        finalMove = "A-" + to
     elif turn == True:
         to = input("Where do you wanna move which piece player B: ")
-        finalMove = "B" + to
+        finalMove = "B-" + to
     parsedInp = pieces.processInput(finalMove)
     if parsedInp == 0:
         input("Press any character to retry")
         continue
-    board.movePiece(parsedInp)
-    board.print_board()
+    result = board.movePiece(parsedInp)
+    if result == 0:
+        input("Press any character to retry")
+        continue
     print(parsedInp)
 
     turn = not turn
