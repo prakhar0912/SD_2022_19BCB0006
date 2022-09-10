@@ -8,10 +8,14 @@ globalBoard = [
     ["-", "-", "-", "-", "-"],
     ["B-P1", "B-P2", "B-P3", "B-P4", "B-P5"]
 ]
-currentChrarcters = ["P1", "P2", "P3", "P4", "P5"]
+currentChrarcters = {
+    "A": ["P1", "P2", "P3", "P4", "P5"],
+    "B": ["P1", "P2", "P3", "P4", "P5"]
+}
 legalMoves = {
     "P": ["L", "R", "U", "D"]
 }
+
 
 
 
@@ -64,9 +68,19 @@ class Board():
         if (newLocI < 0 or newLocI > 4) or (newLocJ < 0 or newLocJ > 4):
             print("Error: Cannot Move Here")
             return 0
-        elif(globalBoard[newLocI][newLocJ].split("-")[0] == turn):
+        if(globalBoard[newLocI][newLocJ].split("-")[0] == turn):
             print("Error: Hitting own Player")
             return 0
+        if(globalBoard[newLocI][newLocJ] != "-") and (globalBoard[newLocI][newLocJ].split("-")[0] != turn):
+            currentChrarcters[globalBoard[newLocI][newLocJ].split("-")[0]].remove(globalBoard[newLocI][newLocJ].split("-")[1])
+            globalBoard[locI][locJ] = "-"
+            globalBoard[newLocI][newLocJ] = turn + "-" + character
+            if(len(currentChrarcters["A"]) == 0):
+                print("B won the game!")
+                return 1
+            if(len(currentChrarcters["B"]) == 0):
+                print("A won the game!")
+                return 1
         else:
             globalBoard[locI][locJ] = "-"
             globalBoard[newLocI][newLocJ] = turn + "-" + character
@@ -76,7 +90,7 @@ class Pieces():
         pass
     def processInput(self, inpt):
         [turn, character, move] = inpt.split("-")
-        if character not in currentChrarcters:
+        if character not in currentChrarcters[turn]:
             print("Error: Invalid Character input")
             return 0
         characterType = character[0]
@@ -96,14 +110,19 @@ while 1:
     elif turn == True:
         to = input("Where do you wanna move which piece player B: ")
         finalMove = "B-" + to
+
+
     parsedInp = pieces.processInput(finalMove)
     if parsedInp == 0:
         input("Press any character to retry")
         continue
+
     result = board.movePiece(parsedInp)
     if result == 0:
         input("Press any character to retry")
         continue
-    print(parsedInp)
+    elif result == 1:
+        input("Press any character to exit!")
+        break
 
     turn = not turn
