@@ -1,20 +1,20 @@
 import os
-from turtle import clearscreen
 
 globalBoard = [
     ["A-P1", "A-P2", "A-P3", "A-P4", "A-P5"],
     ["A-H1", "-", "-", "-", "-"],
-    ["-", "-", "-", "-", "-"],
-    ["B-H1", "-", "-", "-", "-"],
+    ["A-H2", "-", "-", "-", "-"],
+    ["B-H1", "-", "B-H2", "-", "-"],
     ["B-P1", "B-P2", "B-P3", "B-P4", "B-P5"]
 ]
 currentChrarcters = {
-    "A": ["P1", "P2", "P3", "P4", "P5", "H1"],
-    "B": ["P1", "P2", "P3", "P4", "P5", "H1"]
+    "A": ["P1", "P2", "P3", "P4", "P5", "H1", "H2"],
+    "B": ["P1", "P2", "P3", "P4", "P5", "H1", "H2"]
 }
 legalMoves = {
     "P": ["L", "R", "U", "D"],
-    "H1": ["L", "R", "U", "D"]
+    "H1": ["L", "R", "U", "D"],
+    "H2": ["FL", "FR", "BL", "BR"],
 }
 
 
@@ -34,7 +34,7 @@ class Board():
                     print("    " + j + "  ", end="")
                 else:
                     print("  "+j, end = " ")
-            print()
+            print("\n")
         pass
     def movePiece(self, parsedInp):
         [turn, character, move] = parsedInp
@@ -52,39 +52,43 @@ class Board():
         elif character == "H1":
             newLocI1, newLocJ1, newLocI, newLocJ = pieces.moveH1(locI, locJ, move)
         elif character == "H2":
-            newLocI1, newLocJ1, newLocI2, newLocJ2 = pieces.movePawn(locI, locJ, move)
+            newLocI1, newLocJ1, newLocI, newLocJ = pieces.moveH2(locI, locJ, move)
 
 
+        defaultMove = True
         if (newLocI < 0 or newLocI > 4) or (newLocJ < 0 or newLocJ > 4):
+            defaultMove = False
             print("Error: Cannot Move Here")
             return 0
 
-        if(globalBoard[newLocI][newLocJ].split("-")[0] == turn):
-            print("Error: Hitting own Player")
-            return 0
-
+        if character[0] == "P":
+            if(globalBoard[newLocI][newLocJ].split("-")[0] == turn):
+                defaultMove = False
+                print("Error: Hitting own Player")
+                return 0
+        elif character == "H1" or character == "H2":
+            if(globalBoard[newLocI1][newLocJ1].split("-")[0] == turn) or (globalBoard[newLocI][newLocJ].split("-")[0] == turn):
+                defaultMove = False
+                print("Error: Hitting own Player")
+                return 0
         if character[0] == "P":
             if(globalBoard[newLocI][newLocJ] != "-") and (globalBoard[newLocI][newLocJ].split("-")[0] != turn):
                 currentChrarcters[globalBoard[newLocI][newLocJ].split("-")[0]].remove(globalBoard[newLocI][newLocJ].split("-")[1])
                 globalBoard[locI][locJ] = "-"
                 globalBoard[newLocI][newLocJ] = turn + "-" + character
-                if(len(currentChrarcters["A"]) == 0):
-                    print("B won the game!")
-                    return 1
-                if(len(currentChrarcters["B"]) == 0):
-                    print("A won the game!")
-                    return 1
+                defaultMove = False
         elif character == "H1" or character == "H2":
             globalBoard[locI][locJ] = "-"
             if(globalBoard[newLocI1][newLocJ1] != "-") and (globalBoard[newLocI1][newLocJ1].split("-")[0] != turn):
                 currentChrarcters[globalBoard[newLocI1][newLocJ1].split("-")[0]].remove(globalBoard[newLocI1][newLocJ1].split("-")[1])
                 globalBoard[newLocI1][newLocJ1] = "-"
+                defaultMove = False
             if(globalBoard[newLocI][newLocJ] != "-") and (globalBoard[newLocI][newLocJ].split("-")[0] != turn):
                 currentChrarcters[globalBoard[newLocI][newLocJ].split("-")[0]].remove(globalBoard[newLocI][newLocJ].split("-")[1])
+                defaultMove = False
             
             globalBoard[newLocI][newLocJ] = turn + "-" + character
-            
-        else:
+        if defaultMove:    
             globalBoard[locI][locJ] = "-"
             globalBoard[newLocI][newLocJ] = turn + "-" + character
         
@@ -143,6 +147,36 @@ class Pieces():
             newLocI2 -= 2
         elif move == "D":
             newLocI1 += 1
+            newLocI2 += 2
+        else:
+            print("Error: Wrong Move")
+            return 0
+        return newLocI1, newLocJ1, newLocI2, newLocJ2
+    
+    def moveH2(self, locI, locJ, move):
+        newLocI1 = locI
+        newLocJ1 = locJ
+        newLocI2 = locI
+        newLocJ2 = locJ
+        if move == "FL":
+            newLocJ1 -= 1
+            newLocI1 -= 1
+            newLocJ2 -= 2
+            newLocI2 -= 2
+        elif move == "FR":
+            newLocJ1 += 1
+            newLocI1 -= 1
+            newLocJ2 += 2
+            newLocI2 -= 2
+        elif move == "BL":
+            newLocJ1 -= 1
+            newLocI1 += 1
+            newLocJ2 -= 2
+            newLocI2 += 2
+        elif move == "BR":
+            newLocJ1 += 1
+            newLocI1 += 1
+            newLocJ2 += 2
             newLocI2 += 2
         else:
             print("Error: Wrong Move")
