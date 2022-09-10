@@ -2,19 +2,20 @@ import os
 
 globalBoard = [
     ["A-P1", "A-P2", "A-P3", "A-P4", "A-P5"],
-    ["A-H1", "-", "-", "-", "-"],
+    ["A-H1", "-", "A-H3", "-", "-"],
     ["A-H2", "-", "-", "-", "-"],
-    ["B-H1", "-", "B-H2", "-", "-"],
+    ["B-H1", "B-H3", "B-H2", "-", "-"],
     ["B-P1", "B-P2", "B-P3", "B-P4", "B-P5"]
 ]
 currentChrarcters = {
-    "A": ["P1", "P2", "P3", "P4", "P5", "H1", "H2"],
-    "B": ["P1", "P2", "P3", "P4", "P5", "H1", "H2"]
+    "A": ["P1", "P2", "P3", "P4", "P5", "H1", "H2", "H3"],
+    "B": ["P1", "P2", "P3", "P4", "P5", "H1", "H2", "H3"]
 }
 legalMoves = {
     "P": ["L", "R", "U", "D"],
     "H1": ["L", "R", "U", "D"],
     "H2": ["FL", "FR", "BL", "BR"],
+    "H3": ["FL", "FR", "BL", "BR", "RF", "RB", "LF", "LB"]
 }
 
 
@@ -53,6 +54,8 @@ class Board():
             newLocI1, newLocJ1, newLocI, newLocJ = pieces.moveH1(locI, locJ, move)
         elif character == "H2":
             newLocI1, newLocJ1, newLocI, newLocJ = pieces.moveH2(locI, locJ, move)
+        elif character == "H3":
+            newLocI, newLocJ = pieces.moveH3(locI, locJ, move)
 
 
         defaultMove = True
@@ -69,7 +72,7 @@ class Board():
         elif character == "H1" or character == "H2":
             if(globalBoard[newLocI1][newLocJ1].split("-")[0] == turn) or (globalBoard[newLocI][newLocJ].split("-")[0] == turn):
                 defaultMove = False
-                print("Error: Hitting own Player")
+                print("Error: Hitting own Player on the way.")
                 return 0
         if character[0] == "P":
             if(globalBoard[newLocI][newLocJ] != "-") and (globalBoard[newLocI][newLocJ].split("-")[0] != turn):
@@ -182,6 +185,38 @@ class Pieces():
             print("Error: Wrong Move")
             return 0
         return newLocI1, newLocJ1, newLocI2, newLocJ2
+    
+    def moveH3(self, locI, locJ, move):
+        newLocI = locI
+        newLocJ = locJ
+        if move == "FL":
+            newLocJ -= 1
+            newLocI -= 2
+        elif move == "FR":
+            newLocJ += 1
+            newLocI -= 2
+        elif move == "BR":
+            newLocJ += 1
+            newLocI += 2
+        elif move == "BL":
+            newLocJ -= 1
+            newLocI += 2
+        elif move == "RF":
+            newLocJ += 2
+            newLocI -= 1
+        elif move == "RB":
+            newLocJ += 2
+            newLocI += 1
+        elif move == "LF":
+            newLocJ -= 2
+            newLocI -= 1
+        elif move == "LB":
+            newLocJ -= 2
+            newLocI += 1
+        else:
+            print("Error: Wrong Move")
+            return 0
+        return newLocI, newLocJ
 
 turn = False
 board = Board()
